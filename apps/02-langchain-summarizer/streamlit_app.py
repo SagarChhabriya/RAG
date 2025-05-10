@@ -16,7 +16,7 @@ prompt = load_prompt(prompt_path)
 
 # Step 2: Setup Gemini model
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-chat_model = genai.GenerativeModel("gemini-1.5-flash-8b")
+chat_model = genai.GenerativeModel("gemini-2.0-flash-lite")
 
 # Step 3: Streamlit UI
 paper = st.selectbox("Select Paper", ["Attention is All you Need", "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks"])
