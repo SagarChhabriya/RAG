@@ -8,8 +8,11 @@ load_dotenv()
 
 st.title("LangChain Summarizer")
 
-# Step 1: Load the prompt template
-prompt = load_prompt("template.json")
+# Path to template.json relative to this script file
+script_dir = os.path.dirname(os.path.abspath(__file__))
+prompt_path = os.path.join(script_dir,"template.json")
+
+prompt = load_prompt(prompt_path)
 
 # Step 2: Setup Gemini model
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
