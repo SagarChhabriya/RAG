@@ -1,4 +1,5 @@
 import os 
+import time
 import streamlit as st
 from langchain_core.prompts import load_prompt
 import google.generativeai as genai
@@ -18,6 +19,7 @@ prompt = load_prompt(prompt_path)
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 chat_model = genai.GenerativeModel("gemini-2.0-flash-lite")
 
+
 # Step 3: Streamlit UI
 paper = st.selectbox("Select Paper", ["Attention is All you Need", "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks"])
 style = st.selectbox("Select Style", ["Soft", "Hard"])
@@ -32,7 +34,16 @@ formatted_prompt = prompt.format(
 
 # Step 5: Send to Gemini
 if st.button("Summarize"):
-    response = chat_model.generate_content(formatted_prompt)
+    # response = chat_model.generate_content(formatted_prompt)
+    response = chat_model.generate_content(formatted_prompt, stream=True)
 
-    # Step 6: Display result
-    st.write(response.text)
+    # Iterate over each chunk of the response and print as it arrives
+    placeholder = st.empty()
+    full_response = ""
+
+    for chunk in response:
+        if chunk.text:
+            full_response += chunk.text
+            # Show partial content (use .markdown for formatting)
+            placeholder.markdown(full_response)
+            time.sleep(0.05)  # Optional: slow typing effect
