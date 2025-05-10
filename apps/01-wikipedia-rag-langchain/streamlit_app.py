@@ -75,6 +75,6 @@ if user_input:
                 st.markdown(f"[Source {i+1}]({url})")
 
     except Exception as e:
-        st.error(f"❌ Error: {e}")
+        st.error(f"Error: {e}")
 
     st.session_state.is_generating = False
