@@ -1,97 +1,80 @@
+import os
+import streamlit as st
+from dotenv import load_dotenv
+import google.generativeai as genai
+
 from langchain_community.document_loaders import WikipediaLoader
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS 
-from langchain.chains import RetrievalQA
-from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
-import streamlit as st  
-from dotenv import load_dotenv
+from langchain_community.vectorstores import FAISS
 
-
-
+# Load environment variables
 load_dotenv()
 os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
+genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
 
-# Step 1: Set Retriever
-
-def load_docs(query: str, lang: str = "en", load_max_docs: int = 3):
-
-    loader = WikipediaLoader(query=query, lang=lang, load_max_docs=load_max_docs)
-    return loader.load()
-
-# Cached docs
+# Cached Wikipedia loader
 @st.cache_data(show_spinner=False)
 def load_docs_cached(query: str, lang: str = "en", load_max_docs: int = 3):
     loader = WikipediaLoader(query=query, lang=lang, load_max_docs=load_max_docs)
     return loader.load()
 
-
-
-    
-# Step 2: Create and Store Embeddings
-
+# Vectorstore builder
 def create_vectorstore(docs):
-
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    return FAISS.from_documents(docs, embedding=embeddings)
 
-    vector_store = FAISS.from_documents(docs, embedding=embeddings)
-    return vector_store
+# Gemini query generator
+def generate_gemini_answer(context: str, question: str) -> str:
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    prompt = f"""You are a helpful assistant. Based on the following context, answer the question.
 
+Context:
+{context}
 
-# Step 3: RAG Chain
+Question: {question}
+"""
+    response = model.generate_content(prompt)
+    return response.text
 
-def create_qa_chain(vector_store):
+# UI Logic
+st.title(" Wikipedia RAG Assistant")
 
-    retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k":3})
-
-    chat_model = ChatGoogleGenerativeAI(model="gemini-1.5-flash-8b")
-
-    qa_chain = RetrievalQA.from_chain_type(llm=chat_model, retriever=retriever, return_source_documents=True)
-
-    return qa_chain
-
-
-# Step 4: Streamlit UI
-
-st.title("Wikipedia RAG Assistant")
-
-# Initialize history
 if "messages" not in st.session_state:
     st.session_state.messages = []
+if "is_generating" not in st.session_state:
+    st.session_state.is_generating = False
 
-# Render history
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# Get user input
-user_input = st.chat_input("Say something...")
+user_input = st.chat_input("Ask a question about any topic", disabled=st.session_state.is_generating)
 
-# Handle input and response
 if user_input:
+    st.session_state.is_generating = True
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
         st.markdown(user_input)
 
-
-    # Generate reply
-    bot_reply = f"You said: {user_input}"
     try:
         docs = load_docs_cached(user_input)
         vector_store = create_vectorstore(docs)
-        qa_chain = create_qa_chain(vector_store)
-        response = qa_chain.invoke({"query":user_input})
-        bot_reply = response["result"]
+        retriever = vector_store.as_retriever(search_kwargs={"k": 3})
+        retrieved_docs = retriever.get_relevant_documents(user_input)
 
+        context = "\n\n".join(doc.page_content for doc in retrieved_docs)
+        bot_reply = generate_gemini_answer(context, user_input)
 
         st.session_state.messages.append({"role": "assistant", "content": bot_reply})
         with st.chat_message("assistant"):
             st.markdown(bot_reply)
-        
+
         with st.expander("Show sources"):
-            for i, doc in enumerate(response["source_documents"]):
-                st.markdown(f"**Source {i+1}:**")
-                st.write(doc.page_content)
+            for i, doc in enumerate(retrieved_docs):
+                url = doc.metadata.get("source") or f"https://en.wikipedia.org/wiki/{doc.metadata.get('title', '').replace(' ', '_')}"
+                st.markdown(f"[Source {i+1}]({url})")
+
     except Exception as e:
-        st.error(e.args)
+        st.error(f"❌ Error: {e}")
 
-
+    st.session_state.is_generating = False
