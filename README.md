@@ -3,6 +3,7 @@ will update soon! Stay Tuned 😊
 1. [RAG | Amazon Article](https://aws.amazon.com/what-is/retrieval-augmented-generation/)
 2. [RAG vs. Fine Tuning | Datacamp Tutorial](https://www.datacamp.com/tutorial/rag-vs-fine-tuning)
 3. [Knowledge-graph-rag](https://www.datacamp.com/tutorial/knowledge-graph-rag)
+4. [Roadmap to Learn Agentic AI](https://github.com/krishnaik06/Roadmap-To-Learn-Agentic-AI)
 
 
 ---
