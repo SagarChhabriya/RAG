@@ -1,4 +1,4 @@
-will update soon! Stay Tuned 😊
+updated frequently! Stay Tuned 😊
 
 1. [RAG | Amazon Article](https://aws.amazon.com/what-is/retrieval-augmented-generation/)
 2. [RAG vs. Fine Tuning | Datacamp Tutorial](https://www.datacamp.com/tutorial/rag-vs-fine-tuning)
@@ -7,6 +7,9 @@ will update soon! Stay Tuned 😊
 
 
 ---
+![image](https://github.com/user-attachments/assets/a207aabb-5535-4e16-b254-89c2c060b0b2)
+
+
 ![image](https://github.com/user-attachments/assets/9f104a7a-daea-4c4b-9cf2-3d367a8e8939)
 
 
