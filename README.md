@@ -7,6 +7,14 @@ updated frequently! Stay Tuned 😊
 
 
 ---
+
+<img width="1200" height="1500" alt="image" src="https://github.com/user-attachments/assets/56382572-c0ee-49b9-88b4-daa2cd74b170" />
+
+
+<img width="800" height="891" alt="image" src="https://github.com/user-attachments/assets/b1cf100d-5cb4-4fe3-b6df-556a57f993dc" />
+
+
+
 <img width="720" height="960" alt="image" src="https://github.com/user-attachments/assets/260b4490-9e85-46f7-a7ce-c69644701094" />
 
 
